@@ -48,7 +48,6 @@ const user = handleActions(
             });
         },
         [CHECK_SUCCESS]: (state, { payload: user }) => {
-            console.log(user);
             return produce(state, (draft) => {
                 draft.user = user;
                 draft.checkError = null;
