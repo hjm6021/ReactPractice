@@ -1,4 +1,5 @@
 import produce from 'immer';
+import { createAction, handleActions } from 'redux-actions';
 
 const initialState = {
     input: '',
@@ -22,43 +23,43 @@ const TOGGLE = 'todos/TOGGLE';
 const REMOVE = 'todos/REMOVE';
 
 let id = 3;
-export const changeInput = (input) => ({ type: CHANGE_INPUT, input: input });
-export const insert = (text) => ({
-    type: INSERT,
-    todo: {
-        id: id++,
-        text: text,
-        done: false,
-    },
-});
-export const toggle = (id) => ({ type: TOGGLE, id: id });
-export const remove = (id) => ({ type: REMOVE, id: id });
+export const changeInput = createAction(CHANGE_INPUT, (input) => input);
+export const insert = createAction(INSERT, (text) => ({
+    id: id++,
+    text: text,
+    done: false,
+}));
+export const toggle = createAction(TOGGLE, (id) => id);
+export const remove = createAction(REMOVE, (id) => id);
 
-function todos(state = initialState, action) {
-    switch (action.type) {
-        case CHANGE_INPUT:
+const todos = handleActions(
+    {
+        [CHANGE_INPUT]: (state, { payload: input }) => {
             return produce(state, (draft) => {
-                draft.input = action.input;
+                draft.input = input;
             });
-        case INSERT:
+        },
+        [INSERT]: (state, { payload: todo }) => {
             return produce(state, (draft) => {
-                draft.todos.push(action.todo);
+                draft.todos.push(todo);
             });
-        case TOGGLE:
+        },
+        [TOGGLE]: (state, { payload: id }) => {
             return produce(state, (draft) => {
-                const todo = draft.todos.find((todo) => todo.id === action.id);
+                const todo = draft.todos.find((todo) => todo.id === id);
                 todo.done = !todo.done;
             });
-        case REMOVE:
+        },
+        [REMOVE]: (state, { payload: id }) => {
             return produce(state, (draft) => {
                 draft.todos.splice(
-                    draft.todos.findIndex((todo) => todo.id === action.id),
+                    draft.todos.findIndex((todo) => todo.id === id),
                     1
                 );
             });
-        default:
-            return state;
-    }
-}
+        },
+    },
+    initialState
+);
 
 export default todos;
