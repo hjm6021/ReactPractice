@@ -2,20 +2,25 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import WriteActionButtons from '../../components/write/WriteActionButtons';
-import { writePost } from '../../modules/write';
+import { updatePost, writePost } from '../../modules/write';
 
 const WriteActionButtonsContainer = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { title, body, tags, post, postError } = useSelector(({ write }) => ({
+    const { title, body, tags, post, postError, originalPostId } = useSelector(({ write }) => ({
         title: write.title,
         body: write.body,
         tags: write.tags,
         post: write.post,
         postError: write.postError,
+        originalPostId: write.originalPostId,
     }));
 
     const onPublish = () => {
+        if (originalPostId) {
+            dispatch(updatePost({ originalPostId, title, body, tags }));
+            return;
+        }
         dispatch(writePost({ title, body, tags }));
     };
 
@@ -33,7 +38,7 @@ const WriteActionButtonsContainer = () => {
         }
     }, [post, postError, navigate]);
 
-    return <WriteActionButtons onPublish={onPublish} onCancel={onCancel} />;
+    return <WriteActionButtons onPublish={onPublish} onCancel={onCancel} isEdit={!!originalPostId} />;
 };
 
 export default WriteActionButtonsContainer;
